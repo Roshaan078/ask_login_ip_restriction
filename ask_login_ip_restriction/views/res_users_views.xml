@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Extend res.users form to add IP restriction tab -->
+        <record id="view_users_form_ip_restriction" model="ir.ui.view">
+            <field name="name">res.users.form.ip.restriction</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="IP Restriction" name="ip_restriction">
+                        <group>
+                            <group>
+                                <field name="enable_ip_restriction" widget="boolean_toggle"/>
+                            </group>
+                            <group>
+                                <button name="action_add_current_ip" type="object" 
+                                    string="Add Current IP" class="btn btn-info"
+                                    attrs="{'invisible': [('enable_ip_restriction', '=', False)]}"/>
+                                <button name="action_reset_ip_restrictions" type="object" 
+                                    string="Reset All IPs" class="btn btn-warning"
+                                    confirm="Are you sure you want to remove all IP restrictions?"
+                                    attrs="{'invisible': [('enable_ip_restriction', '=', False)]}"/>
+                            </group>
+                        </group>
+                        <separator string="Allowed IP Addresses" 
+                            attrs="{'invisible': [('enable_ip_restriction', '=', False)]}"/>
+                        <field name="ip_restriction_ids" 
+                            attrs="{'invisible': [('enable_ip_restriction', '=', False)]}"
+                            mode="tree,kanban">
+                            <tree string="Allowed IPs" editable="bottom">
+                                <field name="ip_address"/>
+                                <field name="description"/>
+                                <field name="is_active"/>
+                                <field name="created_date" readonly="1"/>
+                            </tree>
+                        </field>
+                        <p class="text-muted mt-3" 
+                            attrs="{'invisible': [('enable_ip_restriction', '=', False)]}">
+                            <strong>Note:</strong>
+                            <ul>
+                                <li>Leave empty to allow login from any IP</li>
+                                <li>Supports IPv4, IPv6, and CIDR notation (e.g., 192.168.1.0/24)</li>
+                                <li>User can only login from specified IPs when restriction is enabled</li>
+                            </ul>
+                        </p>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

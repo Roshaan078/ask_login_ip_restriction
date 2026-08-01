@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Main menu for Ask Login IP Restriction -->
+        <menuitem 
+            id="menu_ask_login_ip_restriction" 
+            name="IP Restriction"
+            sequence="50"/>
+
+        <!-- Settings submenu -->
+        <menuitem 
+            id="menu_user_ip_restriction"
+            name="User IP Restrictions"
+            action="action_user_ip_restriction"
+            parent="menu_ask_login_ip_restriction"
+            sequence="10"/>
+
+        <!-- Add menu under Settings for quick access -->
+        <menuitem 
+            id="menu_ip_restriction_settings"
+            name="IP Restriction Settings"
+            parent="base.menu_administration"
+            sequence="99"/>
+
+        <menuitem 
+            id="menu_ip_restriction_settings_list"
+            name="User IP Restrictions"
+            action="action_user_ip_restriction"
+            parent="menu_ip_restriction_settings"
+            sequence="10"/>
+    </data>
+</odoo>
