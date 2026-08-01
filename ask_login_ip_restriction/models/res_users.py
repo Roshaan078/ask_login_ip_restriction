@@ -1,5 +1,4 @@
 import logging
-from werkzeug.exceptions import Unauthorized
 from odoo import models, fields, api, exceptions
 from odoo.http import request
 
@@ -41,58 +40,60 @@ class ResUsers(models.Model):
             # Direct connection
             return request.httprequest.remote_addr
 
-    @api.model
-    def authenticate(self, db, login, password, user_agent_env=None):
-        """Override authenticate to check IP restriction"""
-        uid = super().authenticate(db, login, password, user_agent_env)
+    @classmethod
+    def _get_request_ip(cls):
+        """Extract client IP from the current request (proxy-aware)."""
+        if not request:
+            return None
+        headers = request.httprequest.headers
+        return (
+            headers.get('CF-Connecting-IP')
+            or (headers.get('X-Forwarded-For') or '').split(',')[0].strip()
+            or headers.get('X-Real-IP')
+            or request.httprequest.remote_addr
+        )
 
+    @classmethod
+    def authenticate(cls, db, credential, user_agent_env=None):
+        """Override authenticate (Odoo 18 signature) to block login by IP.
+
+        In Odoo 17+ this is a classmethod and ``credential`` is a dict; the
+        return value is the ``auth_info`` dict (with a ``uid`` key).
+        """
+        auth_info = super().authenticate(db, credential, user_agent_env)
+
+        # Support both the modern dict result and a bare uid (older cores).
+        uid = auth_info.get('uid') if isinstance(auth_info, dict) else auth_info
         if not uid:
-            return uid
+            return auth_info
 
-        # Get user
-        user = self.browse(uid)
+        with cls.pool.cursor() as cr:
+            env = api.Environment(cr, uid, {})
+            user = env['res.users'].browse(uid)
 
-        # Check IP restriction only if enabled
-        if user.enable_ip_restriction and user.ip_restriction_ids:
-            client_ip = self._get_client_ip()
+            if user.enable_ip_restriction and user.ip_restriction_ids:
+                client_ip = cls._get_request_ip()
 
-            if not client_ip:
-                _logger.warning(
-                    f"Could not determine client IP for user {user.login}"
-                )
-                raise exceptions.AccessDenied(
-                    "Could not determine your IP address. "
-                    "IP restriction is enabled but verification failed."
-                )
+                if not client_ip:
+                    _logger.warning("Could not determine client IP for user %s", user.login)
+                    raise exceptions.AccessDenied(
+                        "Could not determine your IP address. "
+                        "IP restriction is enabled but verification failed."
+                    )
 
-            # Check IP restriction
-            is_allowed, message = self.env['user.ip.restriction']._check_ip_restriction(
-                uid, client_ip
-            )
+                is_allowed, _msg = env['user.ip.restriction']._check_ip_restriction(uid, client_ip)
+                if not is_allowed:
+                    _logger.warning(
+                        "Login attempt from unauthorized IP %s for user %s", client_ip, user.login
+                    )
+                    raise exceptions.AccessDenied(
+                        f"Login not allowed from your IP address ({client_ip}). "
+                        "Contact your administrator."
+                    )
 
-            if not is_allowed:
-                _logger.warning(
-                    f"Login attempt from unauthorized IP {client_ip} for user {user.login}"
-                )
-                raise exceptions.AccessDenied(
-                    f"Login not allowed from your IP address ({client_ip}). "
-                    "Contact your administrator."
-                )
+                _logger.info("User %s authenticated from IP %s", user.login, client_ip)
 
-            _logger.info(
-                f"User {user.login} authenticated from IP {client_ip}"
-            )
-
-        return uid
-
-    @api.model
-    def check_credentials(self, password, user_agent_env=None):
-        """Override check_credentials for additional validation"""
-        try:
-            return super().check_credentials(password, user_agent_env)
-        except exceptions.AccessDenied as e:
-            # Re-raise with proper formatting
-            raise
+        return auth_info
 
     def action_reset_ip_restrictions(self):
         """Action to reset all IP restrictions for user"""

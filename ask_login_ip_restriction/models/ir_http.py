@@ -84,15 +84,14 @@ class IrHttp(models.AbstractModel):
             # Don't block on errors - let user access
             pass
 
-    def _handle(self):
-        """
-        Override _handle to check IP restriction on every request.
-        This provides dual-layer security:
-        - Layer 1: Login controller (authentication.py)
-        - Layer 2: Every request (this method)
-        """
-        # Validate IP on every request
-        self._validate_ip_restriction()
+    @classmethod
+    def _pre_dispatch(cls, rule, args):
+        """Validate IP on every dispatched request (Odoo 18 hook).
 
-        # Continue with normal request handling
-        return super()._handle()
+        This is Layer 2 of the dual-layer security:
+        - Layer 1: login blocking (res_users.authenticate)
+        - Layer 2: every request (here), so a valid session cannot be reused
+          from a disallowed IP.
+        """
+        super()._pre_dispatch(rule, args)
+        cls._validate_ip_restriction()
