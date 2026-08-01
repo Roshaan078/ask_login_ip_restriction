@@ -14,29 +14,28 @@
                                 <field name="enable_ip_restriction" widget="boolean_toggle"/>
                             </group>
                             <group>
-                                <button name="action_add_current_ip" type="object" 
+                                <button name="action_add_current_ip" type="object"
                                     string="Add Current IP" class="btn btn-info"
-                                    attrs="{'invisible': [('enable_ip_restriction', '=', False)]}"/>
-                                <button name="action_reset_ip_restrictions" type="object" 
+                                    invisible="not enable_ip_restriction"/>
+                                <button name="action_reset_ip_restrictions" type="object"
                                     string="Reset All IPs" class="btn btn-warning"
                                     confirm="Are you sure you want to remove all IP restrictions?"
-                                    attrs="{'invisible': [('enable_ip_restriction', '=', False)]}"/>
+                                    invisible="not enable_ip_restriction"/>
                             </group>
                         </group>
-                        <separator string="Allowed IP Addresses" 
-                            attrs="{'invisible': [('enable_ip_restriction', '=', False)]}"/>
-                        <field name="ip_restriction_ids" 
-                            attrs="{'invisible': [('enable_ip_restriction', '=', False)]}"
-                            mode="tree,kanban">
-                            <tree string="Allowed IPs" editable="bottom">
+                        <separator string="Allowed IP Addresses"
+                            invisible="not enable_ip_restriction"/>
+                        <field name="ip_restriction_ids"
+                            invisible="not enable_ip_restriction">
+                            <list string="Allowed IPs" editable="bottom">
                                 <field name="ip_address"/>
                                 <field name="description"/>
                                 <field name="is_active"/>
                                 <field name="created_date" readonly="1"/>
-                            </tree>
+                            </list>
                         </field>
-                        <p class="text-muted mt-3" 
-                            attrs="{'invisible': [('enable_ip_restriction', '=', False)]}">
+                        <p class="text-muted mt-3"
+                            invisible="not enable_ip_restriction">
                             <strong>Note:</strong>
                             <ul>
                                 <li>Leave empty to allow login from any IP</li>

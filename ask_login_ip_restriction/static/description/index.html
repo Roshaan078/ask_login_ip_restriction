@@ -1,823 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Professional IP-Based Access Control for Odoo 18 - Restrict login by IP address with dual-layer security">
-    <meta name="keywords" content="Odoo, IP restriction, security, access control, authentication">
-    <meta name="author" content="Asksol">
-    <title>Ask Login IP Restriction - Odoo 18 Security Module</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #FF6B35;
-            --secondary: #004A7E;
-            --accent: #F7931E;
-            --light: #f8f9fa;
-            --dark: #1a1a1a;
-            --gray: #6c757d;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        /* Header */
-        header {
-            background: linear-gradient(135deg, var(--secondary) 0%, #003d66 100%);
-            color: white;
-            padding: 2rem 0;
-            border-bottom: 5px solid var(--primary);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-        }
-
-        .brand h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .brand p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .header-cta {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #e55a25;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--secondary);
-            border: 2px solid white;
-        }
-
-        .btn-secondary:hover {
-            background: transparent;
-            color: white;
-        }
-
-        /* Main Content */
-        main {
-            padding: 4rem 0;
-        }
-
-        section {
-            margin: 4rem 0;
-        }
-
-        h2 {
-            color: var(--secondary);
-            font-size: 2.2rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            position: relative;
-            padding-bottom: 1rem;
-        }
-
-        h2::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 2px;
-        }
-
-        h3 {
-            color: var(--secondary);
-            font-size: 1.5rem;
-            margin: 1.5rem 0 1rem 0;
-        }
-
-        /* Comparison Table */
-        .comparison {
-            background: var(--light);
-            padding: 3rem 2rem;
-            border-radius: 10px;
-            margin: 2rem 0;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.5rem;
-        }
-
-        thead {
-            background: var(--secondary);
-            color: white;
-        }
-
-        th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tbody tr:hover {
-            background: white;
-        }
-
-        .check {
-            color: #28a745;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .cross {
-            color: #dc3545;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            border-left: 5px solid var(--primary);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-card h4 {
-            color: var(--secondary);
-            margin-bottom: 0.5rem;
-            font-size: 1.2rem;
-        }
-
-        .feature-card p {
-            color: var(--gray);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        /* Architecture */
-        .architecture {
-            background: linear-gradient(135deg, var(--secondary) 0%, #003d66 100%);
-            color: white;
-            padding: 3rem 2rem;
-            border-radius: 10px;
-            margin: 2rem 0;
-        }
-
-        .architecture h3 {
-            color: white;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 1rem;
-        }
-
-        .layer {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            margin: 1rem 0;
-            border-radius: 5px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .layer-title {
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Pricing */
-        .pricing-section {
-            text-align: center;
-            background: var(--light);
-            padding: 3rem 2rem;
-            border-radius: 10px;
-        }
-
-        .price-box {
-            display: inline-block;
-            background: white;
-            padding: 2rem 3rem;
-            border-radius: 10px;
-            margin: 1.5rem 0;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-            border-top: 5px solid var(--primary);
-        }
-
-        .price {
-            font-size: 3rem;
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .currency {
-            font-size: 1.5rem;
-            vertical-align: super;
-        }
-
-        .price-details {
-            color: var(--gray);
-            margin-top: 0.5rem;
-        }
-
-        /* Benefits */
-        .benefits-list {
-            list-style: none;
-            margin: 2rem 0;
-        }
-
-        .benefits-list li {
-            padding: 0.8rem 0;
-            padding-left: 2rem;
-            position: relative;
-            color: #333;
-        }
-
-        .benefits-list li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--primary);
-            font-weight: bold;
-            font-size: 1.3rem;
-        }
-
-        /* Setup Steps */
-        .setup-steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-
-        .step {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            border-top: 5px solid var(--primary);
-        }
-
-        .step-number {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            line-height: 50px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .step h4 {
-            color: var(--secondary);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--secondary);
-            color: white;
-            padding: 3rem 0;
-            margin-top: 4rem;
-            border-top: 5px solid var(--primary);
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-section h4 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .footer-section ul {
-            list-style: none;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-section a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-section a:hover {
-            color: var(--primary);
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding-top: 2rem;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .footer-bottom p {
-            margin-bottom: 0.5rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .brand h1 {
-                font-size: 2rem;
-            }
-
-            h2 {
-                font-size: 1.8rem;
-            }
-
-            .logo {
-                width: 60px;
-                height: 60px;
-            }
-
-            .setup-steps {
-                grid-template-columns: 1fr;
-            }
-
-            table {
-                font-size: 0.9rem;
-            }
-
-            th, td {
-                padding: 0.75rem;
-            }
-        }
-
-        /* Testimonial */
-        .testimonial {
-            background: linear-gradient(135deg, var(--secondary) 0%, #003d66 100%);
-            color: white;
-            padding: 3rem 2rem;
-            border-radius: 10px;
-            margin: 2rem 0;
-            border-left: 5px solid var(--primary);
-        }
-
-        .testimonial-text {
-            font-size: 1.2rem;
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-
-        .testimonial-author {
-            font-weight: 600;
-        }
-
-        /* Badge */
-        .badge {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin: 0.5rem;
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo-section">
-                    <img src="ASKSOL_logo.png" alt="Asksol Logo" class="logo">
-                    <div class="brand">
-                        <h1>Ask Login IP Restriction</h1>
-                        <p>Professional IP-Based Access Control for Odoo</p>
-                    </div>
-                </div>
-                <div class="header-cta">
-                    <a href="#pricing" class="btn btn-primary">Get Started - $4.50</a>
-                    <a href="#features" class="btn btn-secondary">Learn More</a>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="container">
-        <!-- Hero Section -->
-        <section class="hero">
-            <h2>Secure Your Odoo with IP Restriction</h2>
-            <p style="text-align: center; font-size: 1.2rem; color: var(--gray); margin: 1.5rem 0;">
-                Dual-layer security. CIDR support. IPv6 ready. Enterprise-grade.
-            </p>
-            <div style="text-align: center;">
-                <span class="badge">✅ Dual-Layer Protection</span>
-                <span class="badge">✅ CIDR Support</span>
-                <span class="badge">✅ IPv4 & IPv6</span>
-                <span class="badge">✅ $4.50 USD</span>
-            </div>
-        </section>
-
-        <!-- Why Choose Us -->
-        <section id="features">
-            <h2>Why Choose Ask Login IP Restriction?</h2>
-            
-            <div class="comparison">
-                <h3>Comparison with Alternatives</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Feature</th>
-                            <th>Ask Login IP</th>
-                            <th>IP Access Control</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Price</strong></td>
-                            <td><span class="check">$4.50</span></td>
-                            <td>$4.84</td>
-                        </tr>
-                        <tr>
-                            <td><strong>CIDR Range Support</strong></td>
-                            <td><span class="check">✓</span></td>
-                            <td><span class="cross">✗</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>IPv6 Support</strong></td>
-                            <td><span class="check">✓</span></td>
-                            <td><span class="cross">✗</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Dual-Layer Protection</strong></td>
-                            <td><span class="check">✓ (Login + Request)</span></td>
-                            <td><span class="check">✓ (Login + Request)</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Proxy Support</strong></td>
-                            <td><span class="check">✓</span></td>
-                            <td>Not documented</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Documentation</strong></td>
-                            <td><span class="check">64+ Pages</span></td>
-                            <td>Basic</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Record-Level Access</strong></td>
-                            <td><span class="check">✓</span></td>
-                            <td>Unknown</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Support & Updates</strong></td>
-                            <td><span class="check">Lifetime</span></td>
-                            <td><span class="check">Lifetime</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Key Features -->
-        <section>
-            <h2>🔐 Key Features</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🛡️</div>
-                    <h4>Dual-Layer Security</h4>
-                    <p>Blocks at login AND validates every request. No bypass possible. Complete protection.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🌐</div>
-                    <h4>CIDR Range Support</h4>
-                    <p>Support for IP ranges like 192.168.1.0/24. Entire networks in one entry.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔢</div>
-                    <h4>IPv4 & IPv6 Ready</h4>
-                    <p>Full support for both IPv4 and IPv6 addresses. Future-proof.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔗</div>
-                    <h4>Proxy-Aware</h4>
-                    <p>Works behind Nginx, Apache, Cloudflare. Detects real IPs correctly.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h4>Admin Dashboard</h4>
-                    <p>Manage all user restrictions from one place. Search, filter, bulk operations.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📝</div>
-                    <h4>Audit Logging</h4>
-                    <p>All access attempts logged with IP details for compliance audits.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h4>Record-Level Access</h4>
-                    <p>Users see only their own IP restrictions. Admins manage all.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h4>Easy Toggle</h4>
-                    <p>Enable/disable per user with a single click. No IP deletion needed.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📚</div>
-                    <h4>Comprehensive Docs</h4>
-                    <p>64+ pages of documentation. Quickstart, technical, and deployment guides.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Architecture -->
-        <section>
-            <h2>🏗️ Dual-Layer Architecture</h2>
-            <div class="architecture">
-                <h3>Security Layers</h3>
-                <div class="layer">
-                    <div class="layer-title">Layer 1: Login Controller</div>
-                    <p>Blocks unauthorized login attempts before credentials are checked</p>
-                </div>
-                <div class="layer">
-                    <div class="layer-title">Layer 2: Request-Level Validation</div>
-                    <p>Validates IP on every page, API, and RPC call - no URL bypass possible</p>
-                </div>
-                <div class="layer">
-                    <div class="layer-title">Layer 3: Audit Logging</div>
-                    <p>All blocked attempts logged with IP details for compliance tracking</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Setup Guide -->
-        <section>
-            <h2>⚙️ Simple 3-Step Setup</h2>
-            <div class="setup-steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h4>Install Module</h4>
-                    <p>Copy module to addons. Install from Apps menu. Takes 2 minutes.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h4>Enable for Users</h4>
-                    <p>Go to Settings → Users. Enable IP Restriction. Toggle on.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h4>Add Allowed IPs</h4>
-                    <p>Click "Add Current IP" or manually add IPs. Users can now login only from those IPs.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Use Cases -->
-        <section>
-            <h2>🎯 Perfect For</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h4>Remote Teams</h4>
-                    <p>Secure access for remote workers. Add VPN and office IPs.</p>
-                </div>
-                <div class="feature-card">
-                    <h4>Multi-Location Businesses</h4>
-                    <p>Different IP ranges for different locations. Easy to manage.</p>
-                </div>
-                <div class="feature-card">
-                    <h4>Enterprise Deployments</h4>
-                    <p>Zero-trust security. Every request validated. Audit-ready.</p>
-                </div>
-                <div class="feature-card">
-                    <h4>Compliance Requirements</h4>
-                    <p>Detailed logging for audits. Access tracking and reporting.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Example Configurations -->
-        <section>
-            <h2>📋 Example Configurations</h2>
-            <h3>Single Office Network</h3>
-            <p>Allow users to login only from office network:</p>
-            <code style="display: block; background: var(--light); padding: 1rem; border-radius: 5px; margin: 1rem 0;">
-                IP: 203.0.113.0/24<br>
-                Description: "Main Office"<br>
-                → John can login only from office (203.0.113.1 to 203.0.113.254)
-            </code>
-
-            <h3>Multiple Locations</h3>
-            <p>Allow login from multiple locations:</p>
-            <code style="display: block; background: var(--light); padding: 1rem; border-radius: 5px; margin: 1rem 0;">
-                IP 1: 203.0.113.0/24 (Head Office)<br>
-                IP 2: 203.0.114.1 (Branch Office)<br>
-                IP 3: 203.0.115.50 (VPN)<br>
-                → Sarah can login from any location
-            </code>
-
-            <h3>Work From Home + Office</h3>
-            <p>Flexible access for hybrid workers:</p>
-            <code style="display: block; background: var(--light); padding: 1rem; border-radius: 5px; margin: 1rem 0;">
-                IP 1: 203.0.113.0/24 (Office)<br>
-                IP 2: 203.0.115.0/24 (Home ISP)<br>
-                IP 3: 203.0.116.1 (Mobile Hotspot)<br>
-                → Tom can work from anywhere
-            </code>
-        </section>
-
-        <!-- Pricing -->
-        <section id="pricing">
-            <h2>💰 Pricing</h2>
-            <div class="pricing-section">
-                <div class="price-box">
-                    <div class="price">
-                        <span class="currency">$</span>4.50
-                    </div>
-                    <div class="price-details">USD • One-time purchase • Lifetime updates</div>
-                    <ul class="benefits-list" style="text-align: left; max-width: 400px; margin: 2rem auto;">
-                        <li>Full source code</li>
-                        <li>64+ pages of documentation</li>
-                        <li>Free lifetime updates</li>
-                        <li>Free bug fixes forever</li>
-                        <li>Email & WhatsApp support</li>
-                        <li>Compatibility with future Odoo versions</li>
-                    </ul>
-                    <a href="#" class="btn btn-primary">Install Now</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Support -->
-        <section>
-            <h2>🤝 Support & Services</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📧</div>
-                    <h4>Email Support</h4>
-                    <p>support@asksol.pk</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <h4>WhatsApp Support</h4>
-                    <p>Instant support available</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🐛</div>
-                    <h4>Bug Fixes</h4>
-                    <p>Free bug fixes for lifetime</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🚀</div>
-                    <h4>Updates</h4>
-                    <p>Free updates for new Odoo versions</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Testimonial -->
-        <section>
-            <div class="testimonial">
-                <div class="testimonial-text">
-                    "The CIDR support makes it perfect for our large network. One entry covers our entire office. Much better than alternatives."
-                </div>
-                <div class="testimonial-author">— IT Manager, Tech Company</div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>Product</h4>
-                    <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#pricing">Pricing</a></li>
-                        <li><a href="#">Documentation</a></li>
-                        <li><a href="#">Changelog</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Company</h4>
-                    <ul>
-                        <li><a href="https://asksol.pk">About Asksol</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Support</h4>
-                    <ul>
-                        <li><a href="mailto:support@asksol.pk">Email: support@asksol.pk</a></li>
-                        <li><a href="#">WhatsApp: Available</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Troubleshooting</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">License (LGPL-3)</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p><strong>Ask Login IP Restriction v18.0.1.0.0</strong></p>
-                <p>Professional IP-Based Access Control for Odoo</p>
-                <p>© 2024 Asksol. All rights reserved. | <a href="https://asksol.pk">asksol.pk</a></p>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+<section class="oe_container">
+
+  <!-- ===================== HEADER ===================== -->
+  <div style="background:linear-gradient(135deg,#004A7E 0%,#003d66 100%);color:#ffffff;padding:40px 30px;border-bottom:5px solid #FF6B35;border-radius:8px 8px 0 0;text-align:center;">
+    <img src="/ask_login_ip_restriction/static/description/icon.png" alt="Asksol" style="max-height:70px;margin-bottom:16px;"/>
+    <h1 style="color:#ffffff;font-size:40px;margin:0 0 8px 0;font-weight:700;">Ask Login IP Restriction</h1>
+    <p style="color:#ffffff;opacity:0.9;font-size:18px;margin:0 0 20px 0;">Professional IP-Based Access Control for Odoo 18</p>
+    <p style="margin:0;">
+      <span style="display:inline-block;background:#FF6B35;color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:600;margin:4px;">Dual-Layer Protection</span>
+      <span style="display:inline-block;background:#FF6B35;color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:600;margin:4px;">CIDR Support</span>
+      <span style="display:inline-block;background:#FF6B35;color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:600;margin:4px;">IPv4 &amp; IPv6</span>
+      <span style="display:inline-block;background:#FF6B35;color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:600;margin:4px;">$4.50 USD</span>
+    </p>
+  </div>
+
+  <!-- ===================== HERO ===================== -->
+  <div style="text-align:center;padding:40px 30px 10px 30px;">
+    <h2 style="color:#004A7E;font-size:32px;margin:0 0 12px 0;">Secure Your Odoo with IP Restriction</h2>
+    <p style="color:#6c757d;font-size:18px;margin:0;">Dual-layer security. CIDR support. IPv6 ready. Enterprise-grade.</p>
+  </div>
+
+  <!-- ===================== COMPARISON ===================== -->
+  <div style="padding:30px;">
+    <h2 style="color:#004A7E;font-size:28px;text-align:center;border-bottom:3px solid #FF6B35;padding-bottom:12px;display:inline-block;">Why Choose Ask Login IP Restriction?</h2>
+    <div style="background:#f8f9fa;padding:24px;border-radius:10px;margin-top:20px;overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#004A7E;color:#ffffff;">
+            <th style="padding:14px;text-align:left;">Feature</th>
+            <th style="padding:14px;text-align:left;">Ask Login IP</th>
+            <th style="padding:14px;text-align:left;">Typical Alternative</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:12px;border-bottom:1px solid #ddd;"><strong>Price</strong></td><td style="padding:12px;border-bottom:1px solid #ddd;color:#28a745;font-weight:bold;">$4.50</td><td style="padding:12px;border-bottom:1px solid #ddd;">$4.84</td></tr>
+          <tr><td style="padding:12px;border-bottom:1px solid #ddd;"><strong>CIDR Range Support</strong></td><td style="padding:12px;border-bottom:1px solid #ddd;color:#28a745;font-weight:bold;">&#10004;</td><td style="padding:12px;border-bottom:1px solid #ddd;color:#dc3545;font-weight:bold;">&#10008;</td></tr>
+          <tr><td style="padding:12px;border-bottom:1px solid #ddd;"><strong>IPv6 Support</strong></td><td style="padding:12px;border-bottom:1px solid #ddd;color:#28a745;font-weight:bold;">&#10004;</td><td style="padding:12px;border-bottom:1px solid #ddd;color:#dc3545;font-weight:bold;">&#10008;</td></tr>
+          <tr><td style="padding:12px;border-bottom:1px solid #ddd;"><strong>Dual-Layer Protection</strong></td><td style="padding:12px;border-bottom:1px solid #ddd;color:#28a745;font-weight:bold;">&#10004; (Login + Request)</td><td style="padding:12px;border-bottom:1px solid #ddd;">Login only</td></tr>
+          <tr><td style="padding:12px;border-bottom:1px solid #ddd;"><strong>Proxy Support</strong></td><td style="padding:12px;border-bottom:1px solid #ddd;color:#28a745;font-weight:bold;">&#10004;</td><td style="padding:12px;border-bottom:1px solid #ddd;">Not documented</td></tr>
+          <tr><td style="padding:12px;border-bottom:1px solid #ddd;"><strong>Record-Level Access</strong></td><td style="padding:12px;border-bottom:1px solid #ddd;color:#28a745;font-weight:bold;">&#10004;</td><td style="padding:12px;border-bottom:1px solid #ddd;">Unknown</td></tr>
+          <tr><td style="padding:12px;"><strong>Support &amp; Updates</strong></td><td style="padding:12px;color:#28a745;font-weight:bold;">Lifetime</td><td style="padding:12px;">Lifetime</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===================== KEY FEATURES ===================== -->
+  <div style="padding:20px 30px;">
+    <h2 style="color:#004A7E;font-size:28px;text-align:center;">Key Features</h2>
+    <table style="width:100%;border-collapse:separate;border-spacing:16px;">
+      <tr>
+        <td style="width:33%;vertical-align:top;background:#ffffff;padding:22px;border-left:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <h4 style="color:#004A7E;margin:0 0 8px 0;font-size:18px;">&#128737; Dual-Layer Security</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">Blocks at login AND validates every request. No URL bypass possible.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background:#ffffff;padding:22px;border-left:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <h4 style="color:#004A7E;margin:0 0 8px 0;font-size:18px;">&#127760; CIDR Range Support</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">Whitelist entire networks like 192.168.1.0/24 in a single entry.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background:#ffffff;padding:22px;border-left:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <h4 style="color:#004A7E;margin:0 0 8px 0;font-size:18px;">&#128290; IPv4 &amp; IPv6 Ready</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">Full support for both IPv4 and IPv6 addresses. Future-proof.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:top;background:#ffffff;padding:22px;border-left:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <h4 style="color:#004A7E;margin:0 0 8px 0;font-size:18px;">&#128279; Proxy-Aware</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">Works behind Nginx, Apache and Cloudflare. Detects real client IPs.</p>
+        </td>
+        <td style="vertical-align:top;background:#ffffff;padding:22px;border-left:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <h4 style="color:#004A7E;margin:0 0 8px 0;font-size:18px;">&#128203; Audit Logging</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">All access attempts logged with IP details for compliance audits.</p>
+        </td>
+        <td style="vertical-align:top;background:#ffffff;padding:22px;border-left:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <h4 style="color:#004A7E;margin:0 0 8px 0;font-size:18px;">&#128274; Record-Level Access</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">Users see only their own restrictions. Admins manage all.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===================== ARCHITECTURE ===================== -->
+  <div style="padding:20px 30px;">
+    <h2 style="color:#004A7E;font-size:28px;text-align:center;">Dual-Layer Architecture</h2>
+    <div style="background:linear-gradient(135deg,#004A7E 0%,#003d66 100%);color:#ffffff;padding:30px;border-radius:10px;">
+      <div style="background:rgba(255,255,255,0.1);padding:18px;margin:0 0 14px 0;border-radius:6px;border-left:4px solid #FF6B35;">
+        <div style="font-weight:600;color:#FF6B35;margin-bottom:6px;">Layer 1: Login Controller</div>
+        <p style="margin:0;color:#ffffff;">Blocks unauthorized login attempts before credentials are checked.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);padding:18px;margin:0 0 14px 0;border-radius:6px;border-left:4px solid #FF6B35;">
+        <div style="font-weight:600;color:#FF6B35;margin-bottom:6px;">Layer 2: Request-Level Validation</div>
+        <p style="margin:0;color:#ffffff;">Validates the IP on every page, API and RPC call &mdash; no URL bypass possible.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);padding:18px;border-radius:6px;border-left:4px solid #FF6B35;">
+        <div style="font-weight:600;color:#FF6B35;margin-bottom:6px;">Layer 3: Audit Logging</div>
+        <p style="margin:0;color:#ffffff;">All blocked attempts logged with IP details for compliance tracking.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SETUP ===================== -->
+  <div style="padding:20px 30px;">
+    <h2 style="color:#004A7E;font-size:28px;text-align:center;">Simple 3-Step Setup</h2>
+    <table style="width:100%;border-collapse:separate;border-spacing:16px;">
+      <tr>
+        <td style="width:33%;vertical-align:top;text-align:center;background:#ffffff;padding:24px;border-top:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <div style="display:inline-block;width:46px;height:46px;line-height:46px;background:#FF6B35;color:#fff;border-radius:50%;font-size:22px;font-weight:bold;margin-bottom:12px;">1</div>
+          <h4 style="color:#004A7E;margin:0 0 6px 0;">Install Module</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">Copy to addons and install from the Apps menu. Takes 2 minutes.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;text-align:center;background:#ffffff;padding:24px;border-top:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <div style="display:inline-block;width:46px;height:46px;line-height:46px;background:#FF6B35;color:#fff;border-radius:50%;font-size:22px;font-weight:bold;margin-bottom:12px;">2</div>
+          <h4 style="color:#004A7E;margin:0 0 6px 0;">Enable for Users</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">Open Settings &#8594; Users and toggle on IP Restriction.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;text-align:center;background:#ffffff;padding:24px;border-top:5px solid #FF6B35;box-shadow:0 2px 10px rgba(0,0,0,0.08);border-radius:8px;">
+          <div style="display:inline-block;width:46px;height:46px;line-height:46px;background:#FF6B35;color:#fff;border-radius:50%;font-size:22px;font-weight:bold;margin-bottom:12px;">3</div>
+          <h4 style="color:#004A7E;margin:0 0 6px 0;">Add Allowed IPs</h4>
+          <p style="color:#6c757d;margin:0;font-size:14px;">Click "Add Current IP" or enter IPs manually. Done.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===================== PRICING ===================== -->
+  <div style="padding:20px 30px 40px 30px;text-align:center;">
+    <h2 style="color:#004A7E;font-size:28px;">Pricing</h2>
+    <div style="display:inline-block;background:#ffffff;padding:30px 50px;border-radius:10px;box-shadow:0 3px 15px rgba(0,0,0,0.1);border-top:5px solid #FF6B35;">
+      <div style="font-size:48px;color:#FF6B35;font-weight:bold;"><span style="font-size:24px;vertical-align:super;">$</span>4.50</div>
+      <div style="color:#6c757d;margin-top:6px;">USD &bull; One-time purchase &bull; Lifetime updates</div>
+      <div style="text-align:left;max-width:360px;margin:20px auto 0 auto;color:#333;font-size:15px;">
+        <div style="padding:6px 0;">&#10004; Full source code</div>
+        <div style="padding:6px 0;">&#10004; Comprehensive documentation</div>
+        <div style="padding:6px 0;">&#10004; Free lifetime updates &amp; bug fixes</div>
+        <div style="padding:6px 0;">&#10004; Email &amp; WhatsApp support</div>
+        <div style="padding:6px 0;">&#10004; Compatibility with future Odoo versions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== FOOTER ===================== -->
+  <div style="background:#004A7E;color:#ffffff;padding:30px;text-align:center;border-top:5px solid #FF6B35;border-radius:0 0 8px 8px;">
+    <p style="margin:0 0 6px 0;"><strong>Ask Login IP Restriction v18.0.1.0.0</strong></p>
+    <p style="margin:0 0 6px 0;color:rgba(255,255,255,0.85);">Professional IP-Based Access Control for Odoo</p>
+    <p style="margin:0;color:rgba(255,255,255,0.85);">&copy; 2024 Asksol &bull; <a href="https://asksol.pk" style="color:#FF6B35;text-decoration:none;">asksol.pk</a> &bull; support@asksol.pk</p>
+  </div>
+
+</section>
