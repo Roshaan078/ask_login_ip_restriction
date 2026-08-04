@@ -69,7 +69,7 @@
                     <filter name="active" string="Active" domain="[('is_active', '=', True)]"/>
                     <filter name="inactive" string="Inactive" domain="[('is_active', '=', False)]"/>
                     <separator/>
-                    <group expand="0" string="Group By">
+                    <group>
                         <filter name="group_by_user" string="User" domain="[]" context="{'group_by': 'user_id'}"/>
                         <filter name="group_by_active" string="Status" domain="[]" context="{'group_by': 'is_active'}"/>
                     </group>
