@@ -37,13 +37,10 @@ class UserIPRestriction(models.Model):
         default=fields.Datetime.now,
     )
 
-    _sql_constraints = [
-        (
-            'unique_user_ip',
-            'UNIQUE(user_id, ip_address)',
-            'IP address must be unique per user',
-        ),
-    ]
+    _unique_user_ip = models.Constraint(
+        'UNIQUE(user_id, ip_address)',
+        'IP address must be unique per user',
+    )
 
     @api.constrains('ip_address')
     def _validate_ip_address(self):

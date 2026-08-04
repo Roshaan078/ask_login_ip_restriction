@@ -53,45 +53,44 @@ class ResUsers(models.Model):
             or request.httprequest.remote_addr
         )
 
-    @classmethod
-    def authenticate(cls, db, credential, user_agent_env=None):
-        """Override authenticate (Odoo 18 signature) to block login by IP.
+    def authenticate(self, credential, user_agent_env):
+        """Override authenticate (Odoo 19 signature) to block login by IP.
 
-        In Odoo 17+ this is a classmethod and ``credential`` is a dict; the
-        return value is the ``auth_info`` dict (with a ``uid`` key).
+        In Odoo 19 this is no longer a classmethod and the ``db`` argument
+        is gone: it is called as ``env['res.users'].authenticate(...)``.
+        The return value is still the ``auth_info`` dict (with a ``uid``).
         """
-        auth_info = super().authenticate(db, credential, user_agent_env)
+        auth_info = super().authenticate(credential, user_agent_env)
 
-        # Support both the modern dict result and a bare uid (older cores).
         uid = auth_info.get('uid') if isinstance(auth_info, dict) else auth_info
         if not uid:
             return auth_info
 
-        with cls.pool.cursor() as cr:
-            env = api.Environment(cr, uid, {})
-            user = env['res.users'].browse(uid)
+        user = self.env['res.users'].sudo().browse(uid)
 
-            if user.enable_ip_restriction and user.ip_restriction_ids:
-                client_ip = cls._get_request_ip()
+        if user.enable_ip_restriction and user.ip_restriction_ids:
+            client_ip = self._get_request_ip()
 
-                if not client_ip:
-                    _logger.warning("Could not determine client IP for user %s", user.login)
-                    raise exceptions.AccessDenied(
-                        "Could not determine your IP address. "
-                        "IP restriction is enabled but verification failed."
-                    )
+            if not client_ip:
+                _logger.warning("Could not determine client IP for user %s", user.login)
+                raise exceptions.AccessDenied(
+                    "Could not determine your IP address. "
+                    "IP restriction is enabled but verification failed."
+                )
 
-                is_allowed, _msg = env['user.ip.restriction']._check_ip_restriction(uid, client_ip)
-                if not is_allowed:
-                    _logger.warning(
-                        "Login attempt from unauthorized IP %s for user %s", client_ip, user.login
-                    )
-                    raise exceptions.AccessDenied(
-                        f"Login not allowed from your IP address ({client_ip}). "
-                        "Contact your administrator."
-                    )
+            is_allowed, _msg = self.env['user.ip.restriction'].sudo()._check_ip_restriction(
+                uid, client_ip
+            )
+            if not is_allowed:
+                _logger.warning(
+                    "Login attempt from unauthorized IP %s for user %s", client_ip, user.login
+                )
+                raise exceptions.AccessDenied(
+                    f"Login not allowed from your IP address ({client_ip}). "
+                    "Contact your administrator."
+                )
 
-                _logger.info("User %s authenticated from IP %s", user.login, client_ip)
+            _logger.info("User %s authenticated from IP %s", user.login, client_ip)
 
         return auth_info
 
